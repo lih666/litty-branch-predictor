@@ -3,9 +3,9 @@
 //
 #include <stdio.h>
 #include "predictor_util.h"
-u_int32_t gshare_mask = 0;
+uint32_t gshare_mask = 0;
 
-u_int32_t get_gshare_table_addr(u_int32_t pc, u_int32_t global_history, int ghistory_bits) {
+uint32_t get_gshare_table_addr(uint32_t pc, uint32_t global_history, int ghistory_bits) {
 
 	// Use for XOR with pc
 	if (gshare_mask == 0) {
@@ -19,7 +19,7 @@ u_int32_t get_gshare_table_addr(u_int32_t pc, u_int32_t global_history, int ghis
 	return (pc ^ global_history) & gshare_mask;
 }
 
-u_int8_t get_two_bit_prediction_result(int twoBitsState) {
+uint8_t get_two_bit_prediction_result(int twoBitsState) {
 	if (twoBitsState <= WEAKLY_NOTTAKEN) {
 		return NOTTAKEN;
 	} else {
@@ -27,8 +27,8 @@ u_int8_t get_two_bit_prediction_result(int twoBitsState) {
 	}
 }
 
-u_int8_t new_predictor_state(uint8_t old_state, uint8_t outcome) {
-	u_int8_t new_state;
+uint8_t new_predictor_state(uint8_t old_state, uint8_t outcome) {
+	uint8_t new_state;
 
 	if (outcome == TAKEN) {
 		new_state = MIN(old_state + 1, STRONGLY_TAKEN);
