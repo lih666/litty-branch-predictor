@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "predictor_util.h"
 
 //
 // Student Information
