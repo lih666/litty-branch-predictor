@@ -28,7 +28,10 @@ extern const char *email;
 #define TAKEN     1
 
 // "All 2-bit predictors should be initialized to WN (Weakly Not Taken)."
-#define DEFAULT_TWO_BITS_STATE WEAKLY_NOTTAKEN
+#define DEFAULT_TWO_BITS_STATE 0b01010101
+#define TWO_BITS 2
+#define GSHARE_ENTRY_SIZE 8
+
 
 // The Different Predictor Types
 #define STATIC      0
@@ -66,7 +69,6 @@ void init_custom_predictor();
 // Make a prediction for conditional branch instruction at PC 'pc'
 // Returning TAKEN indicates a prediction of taken; returning NOTTAKEN
 // indicates a prediction of not taken
-//
 uint8_t make_prediction(uint32_t pc);
 uint8_t make_gshare_prediction(uint32_t pc);
 uint8_t make_tournament_prediction(uint32_t pc);
@@ -77,7 +79,6 @@ uint8_t make_custom_prediction(uint32_t pc);
 // Train the predictor the last executed branch at PC 'pc' and with
 // outcome 'outcome' (true indicates that the branch was taken, false
 // indicates that the branch was not taken)
-//
 void train_predictor(uint32_t pc, uint8_t outcome);
 void train_gshare_predictor(uint32_t pc, uint8_t outcome);
 void train_tournament_predictor(uint32_t pc, uint8_t outcome);

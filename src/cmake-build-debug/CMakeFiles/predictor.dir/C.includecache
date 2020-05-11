@@ -32,7 +32,15 @@ string.h
 predictor_util.h
 /Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
 
+/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.c
+stdio.h
+-
+predictor_util.h
+/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
+
 /Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
 stdio.h
+-
+stdlib.h
 -
 

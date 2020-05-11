@@ -9,3 +9,6 @@ CMakeFiles/predictor.dir/predictor.c.o
  /Users/jas/Desktop/litty-branch-predictor/src/predictor.c
  /Users/jas/Desktop/litty-branch-predictor/src/predictor.h
  /Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
+CMakeFiles/predictor.dir/predictor_util.c.o
+ /Users/jas/Desktop/litty-branch-predictor/src/predictor_util.c
+ /Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h

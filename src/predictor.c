@@ -71,14 +71,14 @@ void init_predictor() {
 
 void init_gshare_predictor() {
 	global_history = 0;
-	int g_bht_size = (1 << ghistoryBits) * sizeof(uint8_t);
+	int g_bht_size = ((1 << ghistoryBits) * sizeof(uint8_t) / 4) + 1;
 	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
 	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 }
 
 void init_tournament_predictor() {
 	global_history = 0;
-	int g_bht_size = (1 << ghistoryBits) * sizeof(uint8_t);
+	int g_bht_size = ((1 << ghistoryBits) * sizeof(uint8_t) / 4) + 1;
 	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
 	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 
@@ -116,9 +116,17 @@ uint8_t make_prediction(uint32_t pc) {
 
 
 uint8_t make_gshare_prediction(uint32_t pc) {
-    uint32_t index = get_gshare_table_addr(pc, global_history, ghistoryBits);
-    uint8_t pred = global_branch_history_table[index];
-    return get_two_bit_prediction_result(pred);
+	int table_index = 0;
+	int entry_offset = 0;
+
+	// Determine the entry in the prediction table
+    get_gshare_table_addr(pc, global_history, ghistoryBits, &table_index, &entry_offset);
+
+    // Fetch the corresponding prediction result in the table
+    uint8_t combined_states = global_branch_history_table[table_index];
+    int single_state = get_two_bits_state(combined_states, entry_offset);
+
+    return get_two_bit_prediction_result(single_state);
 }
 
 uint8_t make_tournament_prediction(uint32_t pc) {
@@ -154,13 +162,21 @@ void train_predictor(uint32_t pc, uint8_t outcome) {
 
 
 void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
-    uint32_t index = get_gshare_table_addr(pc, global_history, ghistoryBits);
-    uint8_t old_state = global_branch_history_table[index];
+	int table_index = 0;
+	int entry_offset = 0;
+
+	// Determine the entry in the prediction table
+	get_gshare_table_addr(pc, global_history, ghistoryBits, &table_index, &entry_offset);
+
+	// Fetch the corresponding prediction result in the table
+	uint8_t combined_states = global_branch_history_table[table_index];
+	uint8_t old_state = get_two_bits_state(combined_states, entry_offset);
 
     // Update global branch history state for depending on current state
-    global_branch_history_table[index] = new_predictor_state(old_state, outcome);
+    uint8_t new_state = new_predictor_state(old_state, outcome);
+    uint8_t new_combined_states = new_combined_state(combined_states, new_state, entry_offset);
+    global_branch_history_table[table_index] = new_combined_states;
     global_history = new_global_history_state(global_history, outcome);
-
 }
 
 void train_tournament_predictor(uint32_t pc, uint8_t outcome) {

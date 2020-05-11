@@ -29,9 +29,14 @@
 #define STRONGLY_TAKEN  3
 #endif
 
-uint32_t get_gshare_table_addr(uint32_t pc, uint32_t global_history, int ghistory_bits);
+void get_gshare_table_addr(uint32_t pc, uint64_t global_history, int ghistory_bits, int *table_index, int *offset);
+
+int get_two_bits_state(uint8_t full_prediction, int offset);
 uint8_t get_two_bit_prediction_result(int twoBitsState);
+
 uint8_t new_predictor_state(uint8_t old_state, uint8_t outcome);
+uint8_t new_combined_state(uint8_t old_combined_state, uint8_t new_state, int offset);
+
 uint32_t new_global_history_state(uint64_t old_global_history, uint8_t outcome);
 
 #endif //SRC_PREDICTOR_UTIL_H
