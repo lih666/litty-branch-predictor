@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "predictor_util.h"
 
 //
@@ -25,6 +26,9 @@ extern const char *email;
 //------------------------------------//
 #define NOTTAKEN  0
 #define TAKEN     1
+
+// "All 2-bit predictors should be initialized to WN (Weakly Not Taken)."
+#define DEFAULT_TWO_BITS_STATE WEAKLY_NOTTAKEN
 
 // The Different Predictor Types
 #define STATIC      0

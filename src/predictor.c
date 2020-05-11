@@ -37,6 +37,15 @@ int verbose;
 //TODO: Add your own Branch Predictor data structures here
 //
 
+// Global History
+// Used by: Gshare, Tournament
+uint64_t global_history = 0;
+
+// Global branch history table
+// Used by: Gshare, Tournament
+uint8_t* global_branch_history_table;
+
+
 
 //------------------------------------//
 //        Predictor Functions         //
@@ -61,7 +70,10 @@ void init_predictor() {
 }
 
 void init_gshare_predictor() {
-
+	global_history = 0;
+	int g_bht_size = (1 << ghistoryBits) * sizeof(uint8_t);
+	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
+	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 }
 
 void init_tournament_predictor() {
