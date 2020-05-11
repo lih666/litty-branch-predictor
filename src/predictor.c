@@ -111,8 +111,9 @@ uint8_t make_prediction(uint32_t pc) {
 
 
 uint8_t make_gshare_prediction(uint32_t pc) {
-
-    return NOTTAKEN;
+    u_int32_t index = get_gshare_table_addr(pc, global_history, ghistoryBits);
+    uint8_t pred = global_branch_history_table[index];
+    return get_two_bit_prediction_result(pred);
 }
 
 uint8_t make_tournament_prediction(uint32_t pc) {
@@ -148,6 +149,10 @@ void train_predictor(uint32_t pc, uint8_t outcome) {
 
 
 void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
+    u_int32_t index = get_gshare_table_addr(pc, global_history, ghistoryBits);
+    uint8_t pred = global_branch_history_table[index];
+    global_branch_history_table[index] = new_predictor_state(pred, outcome);
+    global_history = new_global_history_state(global_history, outcome);
 
 }
 
