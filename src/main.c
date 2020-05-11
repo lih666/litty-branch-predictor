@@ -85,8 +85,15 @@ main(int argc, char *argv[])
   bpType = STATIC;
   verbose = 0;
 
+  if (argc < 2) {
+    fprintf(stderr, "Number of args %d\n", argc);
+    usage();
+    exit(0);
+  }
+
   // Process cmdline Arguments
   for (int i = 1; i < argc; ++i) {
+
     if (!strcmp(argv[i],"--help")) {
       usage();
       exit(0);

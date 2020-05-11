@@ -44,48 +44,105 @@ int verbose;
 
 // Initialize the predictor
 //
-void
-init_predictor()
-{
-  //
-  //TODO: Initialize Branch Predictor Data Structures
-  //
+void init_predictor() {
+    // Make a prediction based on the bpType
+    switch (bpType) {
+        case STATIC:
+            return;
+        case GSHARE:
+            return init_gshare_predictor();
+        case TOURNAMENT:
+            return init_tournament_predictor();
+        case CUSTOM:
+            return init_custom_predictor();
+        default:
+            break;
+    }
 }
+
+void init_gshare_predictor() {
+
+}
+
+void init_tournament_predictor() {
+
+}
+
+void init_custom_predictor() {
+
+}
+
 
 // Make a prediction for conditional branch instruction at PC 'pc'
 // Returning TAKEN indicates a prediction of taken; returning NOTTAKEN
 // indicates a prediction of not taken
 //
-uint8_t
-make_prediction(uint32_t pc)
-{
-  //
-  //TODO: Implement prediction scheme
-  //
+uint8_t make_prediction(uint32_t pc) {
 
-  // Make a prediction based on the bpType
-  switch (bpType) {
-    case STATIC:
-      return TAKEN;
-    case GSHARE:
-    case TOURNAMENT:
-    case CUSTOM:
-    default:
-      break;
-  }
+    // Make a prediction based on the bpType
+    switch (bpType) {
+        case STATIC:
+            return TAKEN;
+        case GSHARE:
+            return make_gshare_prediction(pc);
+        case TOURNAMENT:
+            return make_tournament_prediction(pc);
+        case CUSTOM:
+            return make_custom_prediction(pc);
+        default:
+            break;
+    }
 
-  // If there is not a compatable bpType then return NOTTAKEN
-  return NOTTAKEN;
+    // If there is not a compatible bpType then return NOTTAKEN
+    return NOTTAKEN;
 }
+
+
+uint8_t make_gshare_prediction(uint32_t pc) {
+
+    return NOTTAKEN;
+}
+
+uint8_t make_tournament_prediction(uint32_t pc) {
+
+    return NOTTAKEN;
+}
+
+uint8_t make_custom_prediction(uint32_t pc) {
+
+    return NOTTAKEN;
+}
+
+
 
 // Train the predictor the last executed branch at PC 'pc' and with
 // outcome 'outcome' (true indicates that the branch was taken, false
 // indicates that the branch was not taken)
 //
-void
-train_predictor(uint32_t pc, uint8_t outcome)
-{
-  //
-  //TODO: Implement Predictor training
-  //
+void train_predictor(uint32_t pc, uint8_t outcome) {
+    switch (bpType) {
+        case STATIC:
+            return;
+        case GSHARE:
+            return train_gshare_predictor(pc, outcome);
+        case TOURNAMENT:
+            return train_tournament_predictor(pc, outcome);
+        case CUSTOM:
+            return train_custom_predictor(pc, outcome);
+        default:
+            break;
+    }
+}
+
+
+void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
+
+}
+
+void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
+
+}
+
+void train_custom_predictor(uint32_t pc, uint8_t outcome) {
+
 }

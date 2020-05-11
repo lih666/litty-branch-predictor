@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/jas/Desktop/litty-branch-predictor/src/main.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+predictor.h
+/Users/jas/Desktop/litty-branch-predictor/src/predictor.h
+
+/Users/jas/Desktop/litty-branch-predictor/src/predictor.c
+stdio.h
+-
+predictor.h
+/Users/jas/Desktop/litty-branch-predictor/src/predictor.h
+
+/Users/jas/Desktop/litty-branch-predictor/src/predictor.h
+stdint.h
+-
+stdlib.h
+-
+
