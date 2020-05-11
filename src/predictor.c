@@ -71,7 +71,8 @@ void init_predictor() {
 
 void init_gshare_predictor() {
 	global_history = 0;
-	int g_bht_size = ((1 << ghistoryBits) * sizeof(uint8_t) / 4) + 1;
+	unsigned int g_bht_size = (((1 << ghistoryBits) * sizeof(uint8_t)) / 4) + 1;
+//	printf("%u\n", g_bht_size);
 	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
 	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 }
