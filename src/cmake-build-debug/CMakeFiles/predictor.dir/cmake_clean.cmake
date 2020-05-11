@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/predictor.dir/main.c.o"
   "CMakeFiles/predictor.dir/predictor.c.o"
+  "CMakeFiles/predictor.dir/predictor_util.c.o"
   "predictor"
   "predictor.pdb"
 )

@@ -94,6 +94,9 @@
 		<Unit filename="/Users/jas/Desktop/litty-branch-predictor/src/predictor.h">
 			<Option target="predictor"/>
 		</Unit>
+		<Unit filename="/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.c">
+			<Option target="predictor"/>
+		</Unit>
 		<Unit filename="/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h">
 			<Option target="predictor"/>
 		</Unit>

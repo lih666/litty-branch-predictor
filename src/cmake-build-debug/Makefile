@@ -177,6 +177,33 @@ predictor.c.s:
 	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/predictor.c.s
 .PHONY : predictor.c.s
 
+predictor_util.o: predictor_util.c.o
+
+.PHONY : predictor_util.o
+
+# target to build an object file
+predictor_util.c.o:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/predictor_util.c.o
+.PHONY : predictor_util.c.o
+
+predictor_util.i: predictor_util.c.i
+
+.PHONY : predictor_util.i
+
+# target to preprocess a source file
+predictor_util.c.i:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/predictor_util.c.i
+.PHONY : predictor_util.c.i
+
+predictor_util.s: predictor_util.c.s
+
+.PHONY : predictor_util.s
+
+# target to generate assembly for a file
+predictor_util.c.s:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/predictor_util.c.s
+.PHONY : predictor_util.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -192,6 +219,9 @@ help:
 	@echo "... predictor.o"
 	@echo "... predictor.i"
 	@echo "... predictor.s"
+	@echo "... predictor_util.o"
+	@echo "... predictor_util.i"
+	@echo "... predictor_util.s"
 .PHONY : help
 
 

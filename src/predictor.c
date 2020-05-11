@@ -77,6 +77,11 @@ void init_gshare_predictor() {
 }
 
 void init_tournament_predictor() {
+	global_history = 0;
+	int g_bht_size = (1 << ghistoryBits) * sizeof(uint8_t);
+	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
+	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
+
 
 }
 
@@ -150,8 +155,10 @@ void train_predictor(uint32_t pc, uint8_t outcome) {
 
 void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
     u_int32_t index = get_gshare_table_addr(pc, global_history, ghistoryBits);
-    uint8_t pred = global_branch_history_table[index];
-    global_branch_history_table[index] = new_predictor_state(pred, outcome);
+    uint8_t old_state = global_branch_history_table[index];
+
+    // Update global branch history state for depending on current state
+    global_branch_history_table[index] = new_predictor_state(old_state, outcome);
     global_history = new_global_history_state(global_history, outcome);
 
 }

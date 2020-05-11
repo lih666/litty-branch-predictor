@@ -74,12 +74,12 @@ clean: CMakeFiles/predictor.dir/clean
 CMakeFiles/predictor.dir/all:
 	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/depend
 	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target predictor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4 "Built target predictor"
 .PHONY : CMakeFiles/predictor.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/predictor.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/predictor.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/predictor.dir/rule

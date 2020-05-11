@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_C
   "/Users/jas/Desktop/litty-branch-predictor/src/main.c" "/Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles/predictor.dir/main.c.o"
   "/Users/jas/Desktop/litty-branch-predictor/src/predictor.c" "/Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles/predictor.dir/predictor.c.o"
+  "/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.c" "/Users/jas/Desktop/litty-branch-predictor/src/cmake-build-debug/CMakeFiles/predictor.dir/predictor_util.c.o"
   )
 set(CMAKE_C_COMPILER_ID "AppleClang")
 
