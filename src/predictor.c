@@ -23,7 +23,7 @@ const char *email       = "EMAIL";
 const char *bpName[4] = { "Static", "Gshare",
                           "Tournament", "Custom" };
 
-int ghistoryBits; // Number of bits used for Global History
+unsigned long ghistoryBits; // Number of bits used for Global History
 int lhistoryBits; // Number of bits used for Local History
 int pcIndexBits;  // Number of bits used for PC index
 int bpType;       // Branch Prediction Type
@@ -45,6 +45,10 @@ uint64_t global_history = 0;
 // Used by: Gshare, Tournament
 uint8_t* global_branch_history_table;
 
+// Tournament prediction selector table, default to weakly select global predictor
+uint8_t* tournament_selector_table;
+uint16_t* tournament_local_history_table;       // From pc -> lhistoryBits history
+uint8_t* tournament_local_history_prediction_table;     // From history bits -> 2 Bits prediction state
 
 
 //------------------------------------//
@@ -71,19 +75,43 @@ void init_predictor() {
 
 void init_gshare_predictor() {
 	global_history = 0;
-	unsigned int g_bht_size = (((1 << ghistoryBits) * sizeof(uint8_t)) / 4) + 1;
-//	printf("%u\n", g_bht_size);
+	unsigned long one = 1;
+	unsigned long g_bht_size = (((one << ghistoryBits) * sizeof(uint8_t)) / (GSHARE_ENTRY_SIZE / TWO_BITS)) + 1;
+
+	/*
+    printf("Size of size_t: %lu \n", sizeof(size_t));
+    printf("Size of uint8_t: %lu \n", sizeof(uint8_t));
+    printf("Shift bits: %lu \n", ghistoryBits);
+    printf("Original number of bytes: %lu \n", ((one << ghistoryBits) * sizeof(uint8_t)));
+    printf("Number of bytes to allocate: %lu \n", g_bht_size);
+    */
+
 	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
 	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 }
 
 void init_tournament_predictor() {
 	global_history = 0;
-	int g_bht_size = ((1 << ghistoryBits) * sizeof(uint8_t) / 4) + 1;
+
+	unsigned long one = 1;
+
+	/* global history related */
+	unsigned long g_bht_size = (((one << ghistoryBits) * sizeof(uint8_t)) / 4) + 1;
+
 	global_branch_history_table = malloc(g_bht_size * sizeof(uint8_t));
 	memset(global_branch_history_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 
+	tournament_selector_table = malloc(g_bht_size * sizeof(uint8_t));
+	memset(tournament_selector_table, DEFAULT_TWO_BITS_STATE, g_bht_size);
 
+	/* local history predictor related */
+	unsigned long l_history_table_size = ((one << pcIndexBits) * sizeof(uint16_t)) + 1;
+	tournament_local_history_table = malloc(l_history_table_size);
+	memset(tournament_local_history_table, 0, l_history_table_size);
+
+	unsigned long l_history_prediction_size = (((one << lhistoryBits) * sizeof(uint8_t)) / (TOURNAMENT_L_PREDICTION_ENTRY_SIZE/TWO_BITS)) + 1;
+	tournament_local_history_prediction_table = malloc(l_history_prediction_size);
+	memset(tournament_local_history_prediction_table, DEFAULT_TWO_BITS_STATE, l_history_prediction_size);
 }
 
 void init_custom_predictor() {
@@ -132,7 +160,37 @@ uint8_t make_gshare_prediction(uint32_t pc) {
 
 uint8_t make_tournament_prediction(uint32_t pc) {
 
-    return NOTTAKEN;
+	// Global Prediction
+	int g_table_index, g_entry_offset;
+	get_tournament_global_table_addr(pc, global_history, ghistoryBits, &g_table_index, &g_entry_offset);
+	uint8_t g_combined_states = global_branch_history_table[g_table_index];
+	int global_state = get_two_bits_state(g_combined_states, g_entry_offset);
+	int global_prediction = get_two_bit_prediction_result(global_state);
+
+	// Local Prediction
+	int l_table_index, l_entry_offset;
+	uint32_t kept_pc_index = get_last_n_bits(pc, pcIndexBits);
+	uint16_t local_history = tournament_local_history_table[kept_pc_index];
+	get_tournament_local_prediction_addr(local_history, lhistoryBits, &l_table_index, &l_entry_offset);
+	uint8_t l_combined_states = tournament_local_history_prediction_table[l_table_index];
+	int local_state = get_two_bits_state(l_combined_states, l_entry_offset);
+	int local_prediction = get_two_bit_prediction_result(local_state);
+
+	// Selector decision
+	uint8_t selector_combined_states = tournament_selector_table[g_table_index];
+	int selector_state = get_two_bits_state(selector_combined_states, g_entry_offset);
+	int selector_result = get_two_bit_prediction_result(selector_state);
+//
+//	printf("GLOBAL HISTORY:%x", global_history);
+//	printf("GLOBAL %d:%d\n", global_state, global_prediction);
+//	printf("LOCAL %d:%d\n", local_state, local_prediction);
+//	printf("USE %d:%d\n", selector_state, selector_result);
+
+	if (selector_result == USE_GLOBAL) {
+		return get_two_bit_prediction_result(global_state);
+	} else {
+		return get_two_bit_prediction_result(local_state);
+	}
 }
 
 uint8_t make_custom_prediction(uint32_t pc) {
@@ -177,10 +235,55 @@ void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
     uint8_t new_state = new_predictor_state(old_state, outcome);
     uint8_t new_combined_states = new_combined_state(combined_states, new_state, entry_offset);
     global_branch_history_table[table_index] = new_combined_states;
-    global_history = new_global_history_state(global_history, outcome);
+    global_history = new_history_state(global_history, outcome);
 }
 
 void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
+
+	// Global Prediction
+	int g_table_index, g_entry_offset;
+	get_tournament_global_table_addr(pc, global_history, ghistoryBits, &g_table_index, &g_entry_offset);
+	uint8_t g_combined_states = global_branch_history_table[g_table_index];
+	int global_state = get_two_bits_state(g_combined_states, g_entry_offset);
+	int global_prediction = get_two_bit_prediction_result(global_state);
+
+	// Local Prediction
+	int l_table_index, l_entry_offset;
+	uint32_t kept_pc_index = get_last_n_bits(pc, pcIndexBits);
+	uint16_t local_history = tournament_local_history_table[kept_pc_index];
+	get_tournament_local_prediction_addr(local_history, lhistoryBits, &l_table_index, &l_entry_offset);
+	uint8_t l_combined_states = tournament_local_history_prediction_table[l_table_index];
+	int local_state = get_two_bits_state(l_combined_states, l_entry_offset);
+	int local_prediction = get_two_bit_prediction_result(local_state);
+
+	// Selector decision
+	uint8_t selector_combined_states = tournament_selector_table[g_table_index];
+	int selector_state = get_two_bits_state(selector_combined_states, g_entry_offset);
+
+	// Update selector
+	uint8_t updated_selector_state = new_selector_state(selector_state, outcome, global_prediction, local_prediction);
+	uint8_t updated_combined_selector_states = new_combined_state(selector_combined_states, updated_selector_state, g_entry_offset);
+	tournament_selector_table[g_table_index] = updated_combined_selector_states;
+
+	// Update predictor states
+	uint8_t g_new_predictor_states = new_predictor_state(global_state, outcome);
+	uint8_t g_new_combined_predictor_states = new_combined_state(g_combined_states, g_new_predictor_states, g_entry_offset);
+	global_branch_history_table[g_table_index] = g_new_combined_predictor_states;
+
+	uint8_t l_new_predictor_states = new_predictor_state(local_state, outcome);
+	uint8_t l_new_combined_predictor_states = new_combined_state(l_combined_states, l_new_predictor_states, l_entry_offset);
+	tournament_local_history_prediction_table[l_table_index] = l_new_combined_predictor_states;
+
+	// Update history
+	global_history = new_history_state(global_history, outcome);
+	uint16_t new_local_history = new_history_state(local_history, outcome);
+	tournament_local_history_table[kept_pc_index] = new_local_history;
+//
+//	printf("OUTCOME IS %d\n", outcome);
+//	printf("T-GLOBAL %d\n", g_new_predictor_states);
+//	printf("T-LOCAL %d\n", l_new_predictor_states);
+//	printf("T-USE %d\n", updated_selector_state);
+//	printf("--------------\n");
 
 }
 

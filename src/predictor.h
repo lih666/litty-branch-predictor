@@ -31,7 +31,11 @@ extern const char *email;
 #define DEFAULT_TWO_BITS_STATE 0b01010101
 #define TWO_BITS 2
 #define GSHARE_ENTRY_SIZE 8
+#define TOURNAMENT_L_PREDICTION_ENTRY_SIZE 8
 
+// Tournament selector
+#define USE_GLOBAL  0
+#define USE_LOCAL   1
 
 // The Different Predictor Types
 #define STATIC      0
@@ -49,7 +53,7 @@ extern const char *bpName[];
 //------------------------------------//
 //      Predictor Configuration       //
 //------------------------------------//
-extern int ghistoryBits; // Number of bits used for Global History
+extern unsigned long ghistoryBits; // Number of bits used for Global History
 extern int lhistoryBits; // Number of bits used for Local History
 extern int pcIndexBits;  // Number of bits used for PC index
 extern int bpType;       // Branch Prediction Type

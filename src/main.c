@@ -43,10 +43,10 @@ handle_option(char *arg)
     bpType = STATIC;
   } else if (!strncmp(arg,"--gshare:",9)) {
     bpType = GSHARE;
-    sscanf(arg+9,"%d", &ghistoryBits);
+    sscanf(arg+9,"%lu", &ghistoryBits);
   } else if (!strncmp(arg,"--tournament:",13)) {
     bpType = TOURNAMENT;
-    sscanf(arg+13,"%d:%d:%d", &ghistoryBits, &lhistoryBits, &pcIndexBits);
+    sscanf(arg+13,"%lu:%d:%d", &ghistoryBits, &lhistoryBits, &pcIndexBits);
   } else if (!strcmp(arg,"--custom")) {
     bpType = CUSTOM;
   } else if (!strcmp(arg,"--verbose")) {
@@ -120,6 +120,10 @@ main(int argc, char *argv[])
   // Reach each branch from the trace
   while (read_branch(&pc, &outcome)) {
     num_branches++;
+
+    if (num_branches == 4680 || num_branches == 4684) {
+    	printf("HA");
+    }
 
     // Make a prediction and compare with actual outcome
     uint8_t prediction = make_prediction(pc);
