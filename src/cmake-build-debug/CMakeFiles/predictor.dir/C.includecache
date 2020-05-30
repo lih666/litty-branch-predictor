@@ -6,25 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/Users/jas/Desktop/litty-branch-predictor/src/predictor.c
+/Users/jas/Desktop/litty-branch-predictor/src/hash_table.c
 stdio.h
--
-predictor.h
-/Users/jas/Desktop/litty-branch-predictor/src/predictor.h
-
-/Users/jas/Desktop/litty-branch-predictor/src/predictor.h
-stdint.h
--
-stdlib.h
 -
 string.h
 -
-predictor_util.h
-/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
-
-/Users/jas/Desktop/litty-branch-predictor/src/predictor_util.h
-stdio.h
--
 stdlib.h
+-
+stdbool.h
 -
 

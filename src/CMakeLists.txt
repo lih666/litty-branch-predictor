@@ -9,4 +9,4 @@ add_executable(predictor
         main.c
         Makefile
         predictor.c
-        predictor.h predictor_util.h predictor_util.c)
+        predictor.h predictor_util.h predictor_util.c hash_table.c)

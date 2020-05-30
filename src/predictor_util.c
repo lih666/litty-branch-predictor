@@ -20,7 +20,7 @@ uint8_t full_mask = 0xFF;
 uint32_t tournament_global_mask = 0;
 uint32_t tournament_local_history_mask = 0;
 
-uint64_t get_last_n_bits(uint64_t target, unsigned long n) {
+uint64_t get_last_n_bits_64(uint64_t target, unsigned long n) {
 	// Use for mask
 	uint64_t mask = 0;
 	for (int index = 0; index < n; index++) {
@@ -29,6 +29,12 @@ uint64_t get_last_n_bits(uint64_t target, unsigned long n) {
 	}
 
 	return mask & target;
+}
+
+uint32_t get_last_n_bits_32(uint32_t v, int n) {
+	v = v << (32 - n);
+	v = v >> (32 - n);
+	return v;
 }
 
 
@@ -121,4 +127,17 @@ uint8_t new_selector_state(uint8_t old_state, uint8_t outcome, uint8_t global_pr
 
 uint32_t new_history_state(uint64_t old_history, uint8_t outcome) {
 	return (old_history << 1) + outcome;
+}
+
+void custom_hashing(uint32_t pc, uint32_t* idx, uint32_t* tag, uint16_t* history) {
+	uint32_t h[4];
+	h[0] = history[0];
+	h[1] = history[0] ^ history[1];
+	h[2] = history[0] ^ history[1] ^ history[2] ^ history[3];
+	h[3] = history[0] ^ history[1] ^ history[2] ^ history[3] ^ history[4] ^ history[5] ^ history[6] ^ history[7];
+
+	for (int i = 0; i < 4; i++) {
+		idx[i] = get_last_n_bits_32(pc ^ h[i], 10);
+		tag[i] = get_last_n_bits_32((pc >> 10) ^ h[i], 8);
+	}
 }

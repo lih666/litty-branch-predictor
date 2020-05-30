@@ -50,6 +50,15 @@ uint8_t* tournament_selector_table;
 uint16_t* tournament_local_history_table;       // From pc -> lhistoryBits history
 uint8_t* tournament_local_history_prediction_table;     // From history bits -> 2 Bits prediction state
 
+uint8_t* bimodal_ctr;
+uint8_t* bimodal_m;
+
+uint8_t* ctr[4];
+uint8_t* tag[4];
+uint8_t* u[4];
+uint64_t ghistory;
+uint16_t history[8];
+
 
 //------------------------------------//
 //        Predictor Functions         //
@@ -58,19 +67,19 @@ uint8_t* tournament_local_history_prediction_table;     // From history bits -> 
 // Initialize the predictor
 //
 void init_predictor() {
-    // Make a prediction based on the bpType
-    switch (bpType) {
-        case STATIC:
-            return;
-        case GSHARE:
-            return init_gshare_predictor();
-        case TOURNAMENT:
-            return init_tournament_predictor();
-        case CUSTOM:
-            return init_custom_predictor();
-        default:
-            break;
-    }
+	// Make a prediction based on the bpType
+	switch (bpType) {
+		case STATIC:
+			return;
+		case GSHARE:
+			return init_gshare_predictor();
+		case TOURNAMENT:
+			return init_tournament_predictor();
+		case CUSTOM:
+			return init_custom_predictor();
+		default:
+			break;
+	}
 }
 
 void init_gshare_predictor() {
@@ -115,7 +124,39 @@ void init_tournament_predictor() {
 }
 
 void init_custom_predictor() {
-
+	uint8_t* tmp = (uint8_t*)malloc(4096 * 5 * sizeof(uint8_t));
+	memset(tmp, 0, 4096 * 5 * sizeof(uint8_t));
+	memset(tmp, 3, 4096 * 2 * sizeof(uint8_t));
+	bimodal_ctr = tmp;
+	tmp += 4096;
+	ctr[0] = tmp;
+	tmp += 1024;
+	ctr[1] = tmp;
+	tmp += 1024;
+	ctr[2] = tmp;
+	tmp += 1024;
+	ctr[3] = tmp;
+	tmp += 1024;
+	bimodal_m = tmp;
+	tmp += 4096;
+	tag[0] = tmp;
+	tmp += 1024;
+	tag[1] = tmp;
+	tmp += 1024;
+	tag[2] = tmp;
+	tmp += 1024;
+	tag[3] = tmp;
+	tmp += 1024;
+	u[0] = tmp;
+	tmp += 1024;
+	u[1] = tmp;
+	tmp += 1024;
+	u[2] = tmp;
+	tmp += 1024;
+	u[3] = tmp;
+	tmp += 1024;
+	memset(history, 0, 8 * sizeof(uint16_t));
+	ghistory = 0;
 }
 
 
@@ -125,22 +166,22 @@ void init_custom_predictor() {
 //
 uint8_t make_prediction(uint32_t pc) {
 
-    // Make a prediction based on the bpType
-    switch (bpType) {
-        case STATIC:
-            return TAKEN;
-        case GSHARE:
-            return make_gshare_prediction(pc);
-        case TOURNAMENT:
-            return make_tournament_prediction(pc);
-        case CUSTOM:
-            return make_custom_prediction(pc);
-        default:
-            break;
-    }
+	// Make a prediction based on the bpType
+	switch (bpType) {
+		case STATIC:
+			return TAKEN;
+		case GSHARE:
+			return make_gshare_prediction(pc);
+		case TOURNAMENT:
+			return make_tournament_prediction(pc);
+		case CUSTOM:
+			return make_custom_prediction(pc);
+		default:
+			break;
+	}
 
-    // If there is not a compatible bpType then return NOTTAKEN
-    return NOTTAKEN;
+	// If there is not a compatible bpType then return NOTTAKEN
+	return NOTTAKEN;
 }
 
 
@@ -149,13 +190,13 @@ uint8_t make_gshare_prediction(uint32_t pc) {
 	int entry_offset = 0;
 
 	// Determine the entry in the prediction table
-    get_gshare_table_addr(pc, global_history, ghistoryBits, &table_index, &entry_offset);
+	get_gshare_table_addr(pc, global_history, ghistoryBits, &table_index, &entry_offset);
 
-    // Fetch the corresponding prediction result in the table
-    uint8_t combined_states = global_branch_history_table[table_index];
-    int single_state = get_two_bits_state(combined_states, entry_offset);
+	// Fetch the corresponding prediction result in the table
+	uint8_t combined_states = global_branch_history_table[table_index];
+	int single_state = get_two_bits_state(combined_states, entry_offset);
 
-    return get_two_bit_prediction_result(single_state);
+	return get_two_bit_prediction_result(single_state);
 }
 
 uint8_t make_tournament_prediction(uint32_t pc) {
@@ -165,16 +206,14 @@ uint8_t make_tournament_prediction(uint32_t pc) {
 	get_tournament_global_table_addr(pc, global_history, ghistoryBits, &g_table_index, &g_entry_offset);
 	uint8_t g_combined_states = global_branch_history_table[g_table_index];
 	int global_state = get_two_bits_state(g_combined_states, g_entry_offset);
-	int global_prediction = get_two_bit_prediction_result(global_state);
 
 	// Local Prediction
 	int l_table_index, l_entry_offset;
-	uint32_t kept_pc_index = get_last_n_bits(pc, pcIndexBits);
+	uint32_t kept_pc_index = get_last_n_bits_32(pc, pcIndexBits);
 	uint16_t local_history = tournament_local_history_table[kept_pc_index];
 	get_tournament_local_prediction_addr(local_history, lhistoryBits, &l_table_index, &l_entry_offset);
 	uint8_t l_combined_states = tournament_local_history_prediction_table[l_table_index];
 	int local_state = get_two_bits_state(l_combined_states, l_entry_offset);
-	int local_prediction = get_two_bit_prediction_result(local_state);
 
 	// Selector decision
 	uint8_t selector_combined_states = tournament_selector_table[g_table_index];
@@ -195,7 +234,17 @@ uint8_t make_tournament_prediction(uint32_t pc) {
 
 uint8_t make_custom_prediction(uint32_t pc) {
 
-    return NOTTAKEN;
+	uint32_t idx0 = get_last_n_bits_32(pc, 12);
+	uint32_t idx[4];
+	uint32_t t_tag[4];
+	custom_hashing(pc, idx, t_tag, history);
+	for (int i = 3; i > -1; i--) {
+
+		if (t_tag[i] == tag[i][idx[i]]) return ctr[i][idx[i]] < 4 ? NOTTAKEN : TAKEN;
+
+	}
+
+	return bimodal_ctr[idx0] < 4 ? NOTTAKEN : TAKEN;
 }
 
 
@@ -205,18 +254,18 @@ uint8_t make_custom_prediction(uint32_t pc) {
 // indicates that the branch was not taken)
 //
 void train_predictor(uint32_t pc, uint8_t outcome) {
-    switch (bpType) {
-        case STATIC:
-            return;
-        case GSHARE:
-            return train_gshare_predictor(pc, outcome);
-        case TOURNAMENT:
-            return train_tournament_predictor(pc, outcome);
-        case CUSTOM:
-            return train_custom_predictor(pc, outcome);
-        default:
-            break;
-    }
+	switch (bpType) {
+		case STATIC:
+			return;
+		case GSHARE:
+			return train_gshare_predictor(pc, outcome);
+		case TOURNAMENT:
+			return train_tournament_predictor(pc, outcome);
+		case CUSTOM:
+			return train_custom_predictor(pc, outcome);
+		default:
+			break;
+	}
 }
 
 
@@ -231,11 +280,11 @@ void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
 	uint8_t combined_states = global_branch_history_table[table_index];
 	uint8_t old_state = get_two_bits_state(combined_states, entry_offset);
 
-    // Update global branch history state for depending on current state
-    uint8_t new_state = new_predictor_state(old_state, outcome);
-    uint8_t new_combined_states = new_combined_state(combined_states, new_state, entry_offset);
-    global_branch_history_table[table_index] = new_combined_states;
-    global_history = new_history_state(global_history, outcome);
+	// Update global branch history state for depending on current state
+	uint8_t new_state = new_predictor_state(old_state, outcome);
+	uint8_t new_combined_states = new_combined_state(combined_states, new_state, entry_offset);
+	global_branch_history_table[table_index] = new_combined_states;
+	global_history = new_history_state(global_history, outcome);
 }
 
 void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
@@ -249,7 +298,7 @@ void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
 
 	// Local Prediction
 	int l_table_index, l_entry_offset;
-	uint32_t kept_pc_index = get_last_n_bits(pc, pcIndexBits);
+	uint32_t kept_pc_index = get_last_n_bits_32(pc, pcIndexBits);
 	uint16_t local_history = tournament_local_history_table[kept_pc_index];
 	get_tournament_local_prediction_addr(local_history, lhistoryBits, &l_table_index, &l_entry_offset);
 	uint8_t l_combined_states = tournament_local_history_prediction_table[l_table_index];
@@ -288,5 +337,57 @@ void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
 }
 
 void train_custom_predictor(uint32_t pc, uint8_t outcome) {
+	ghistory++;
+
+	uint32_t idx0 = get_last_n_bits_32(pc, 12);
+	uint32_t idx[4];
+	uint32_t t_tag[4];
+	uint8_t res = bimodal_ctr[idx0] < 4 ? NOTTAKEN : TAKEN;
+	custom_hashing(pc, idx, t_tag, history);
+
+	int i = 3;
+	for (i = 3; i > -1; i--)
+		if (t_tag[i] == tag[i][idx[i]]) {
+			res = ctr[i][idx[i]] < 4 ? NOTTAKEN : TAKEN;
+			break;
+		}
+	if (res != (bimodal_ctr[idx0] < 4 ? NOTTAKEN : TAKEN)) {
+		if (res == outcome) {
+			bimodal_m[idx0] = 1;
+			u[i][idx[i]] = 1;
+		}
+		else {
+			bimodal_m[idx0] = 1;
+			u[i][idx[i]] = 1;
+		}
+	}
+	if (i == -1) {
+		if (outcome == NOTTAKEN) bimodal_ctr[idx0] = bimodal_ctr[idx0] == 0 ? 0 : bimodal_ctr[idx0] - 1;
+		else bimodal_ctr[idx0] = bimodal_ctr[idx0] == 7 ? 7 : bimodal_ctr[idx0] + 1;
+	}
+	else {
+		if (outcome == NOTTAKEN) ctr[i][idx[i]] = ctr[i][idx[i]] == 0 ? 0 : ctr[i][idx[i]] - 1;
+		else ctr[i][idx[i]] = ctr[i][idx[i]] == 7 ? 7 : ctr[i][idx[i]] + 1;
+	}
+
+	if (i != 3 && res != outcome) {
+		int j = i + 1;
+		for (; j < 4; j++) if (u[j][idx[j]] == 0) break;
+
+		if (j == 4) j = pc % (4 - i - 1) + i + 1;
+
+		u[j][idx[j]] = 0;
+
+		tag[j][idx[j]] = t_tag[j];
+		if (bimodal_m[idx0] == 1) ctr[j][idx[j]] = outcome == NOTTAKEN ? 3 : 4;
+		else ctr[j][idx[j]] = bimodal_ctr[idx0] < 4 ? 3 : 4;
+	}
+
+
+	uint32_t carry = outcome == NOTTAKEN ? 0 : 1;
+	for (int i = 0; i < 8; i++) {
+		history[i] = (history[i] << 1) + carry;
+		carry = (history[i] & 1024*32) == 0 ? 0 : 1;
+	}
 
 }

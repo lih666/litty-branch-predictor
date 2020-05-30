@@ -123,6 +123,33 @@ predictor/fast:
 	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/build
 .PHONY : predictor/fast
 
+hash_table.o: hash_table.c.o
+
+.PHONY : hash_table.o
+
+# target to build an object file
+hash_table.c.o:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/hash_table.c.o
+.PHONY : hash_table.c.o
+
+hash_table.i: hash_table.c.i
+
+.PHONY : hash_table.i
+
+# target to preprocess a source file
+hash_table.c.i:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/hash_table.c.i
+.PHONY : hash_table.c.i
+
+hash_table.s: hash_table.c.s
+
+.PHONY : hash_table.s
+
+# target to generate assembly for a file
+hash_table.c.s:
+	$(MAKE) -f CMakeFiles/predictor.dir/build.make CMakeFiles/predictor.dir/hash_table.c.s
+.PHONY : hash_table.c.s
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -213,6 +240,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... predictor"
+	@echo "... hash_table.o"
+	@echo "... hash_table.i"
+	@echo "... hash_table.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

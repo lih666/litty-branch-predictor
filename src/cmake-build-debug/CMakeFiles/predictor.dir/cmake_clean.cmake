@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/predictor.dir/hash_table.c.o"
   "CMakeFiles/predictor.dir/main.c.o"
   "CMakeFiles/predictor.dir/predictor.c.o"
   "CMakeFiles/predictor.dir/predictor_util.c.o"

@@ -7,8 +7,8 @@ all: main.o predictor.o
 main.o: main.c predictor.h
 	$(CC) $(OPTS) -c main.c
 
-predictor.o: predictor.h predictor.c predictor_util.h predictor_util.c
-	$(CC) $(OPTS) -c predictor.c predictor_util.c
+predictor.o: predictor.h predictor.c predictor_util.h predictor_util.c hash_table.c
+	$(CC) $(OPTS) -c predictor.c predictor_util.c hash_table.c
 
 clean:
 	rm -f *.o predictor;

@@ -121,10 +121,6 @@ main(int argc, char *argv[])
   while (read_branch(&pc, &outcome)) {
     num_branches++;
 
-    if (num_branches == 4680 || num_branches == 4684) {
-    	printf("HA");
-    }
-
     // Make a prediction and compare with actual outcome
     uint8_t prediction = make_prediction(pc);
     if (prediction != outcome) {
